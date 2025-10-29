@@ -13,7 +13,7 @@ interface ExampleDto {
     providedIn: 'root'
 })
 export class ExampleService {
-    private readonly basePath = '/weatherforecast'; // Adjust this to match your API endpoint
+    private readonly basePath = '/product'; // Adjust this to match your API endpoint
 
     constructor(private apiService: ApiService) { }
 
