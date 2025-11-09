@@ -9,8 +9,7 @@ COPY package*.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci
 COPY . .
 EXPOSE 4200
-EXPOSE 4443
-CMD ["npm", "start", "--", "--host", "0.0.0.0", "--poll", "2000", "--ssl"]
+CMD ["npm", "start", "--", "--host", "0.0.0.0", "--poll", "2000"]
 
 # Production build stage
 FROM node:${NODE_VERSION} AS builder

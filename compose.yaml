@@ -14,7 +14,8 @@ services:
       dockerfile: ../Dockerfile
       target: development
     ports:
-      - "4200:4200"
+      - "4200:4200"  # HTTP (falls --ssl nicht genutzt wird)
+      - "4443:4443"  # HTTPS
     volumes:
       - ./ec_frontend:/app
       - /app/node_modules
