@@ -39,4 +39,13 @@ export class App {
   toggleDropdown() {
     this.dropdownOpen.set(!this.dropdownOpen());
   }
+
+  closeDropdown() {
+    this.dropdownOpen.set(false);
+  }
+
+  logout() {
+    this.authService.logout();
+    this.closeDropdown();
+  }
 }

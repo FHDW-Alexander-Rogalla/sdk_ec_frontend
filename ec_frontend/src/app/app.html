@@ -210,14 +210,14 @@
         @if (dropdownOpen()) {
           @if (authService.currentUser() !== null) {
             <div class="dropdown-menu">
-              <!-- <a routerLink="/profile" class="dropdown-item">
+              <!-- <a routerLink="/profile" class="dropdown-item" (click)="closeDropdown()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                   <circle cx="8.5" cy="7" r="4"></circle>
                 </svg>
                 Profile
               </a> -->
-              <a (click)="authService.logout()" class="dropdown-item">
+              <a (click)="logout()" class="dropdown-item">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                   <polyline points="16 17 21 12 16 7"></polyline>
@@ -228,7 +228,7 @@
             </div>
           } @else {
             <div class="dropdown-menu">
-              <a routerLink="/login" class="dropdown-item">
+              <a routerLink="/login" class="dropdown-item" (click)="closeDropdown()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
                   <polyline points="10 17 15 12 10 7"></polyline>
@@ -236,7 +236,7 @@
                 </svg>
                 Sign in
               </a>
-              <a routerLink="/register" class="dropdown-item">
+              <a routerLink="/register" class="dropdown-item" (click)="closeDropdown()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                   <circle cx="8.5" cy="7" r="4"></circle>
