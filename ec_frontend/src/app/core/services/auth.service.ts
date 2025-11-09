@@ -1,18 +1,16 @@
-import { Injectable, signal } from "@angular/core";
-import { environment } from "../../../environments/environment";
-import { AuthResponse, createClient } from "@supabase/supabase-js";
+import { Injectable, signal, inject } from "@angular/core";
+import { AuthResponse } from "@supabase/supabase-js";
 import { from, Observable, of, throwError } from "rxjs";
 import { mergeMap } from 'rxjs/operators';
+import { SupabaseService } from './supabase.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
     // Auth service implementation goes here
-    supabase = createClient(
-        environment.supabaseUrl, 
-        environment.supabaseKey
-    );
+    private supabaseService = inject(SupabaseService);
+    supabase = this.supabaseService.client;
     currentUser = signal<{ email: string; username: string } | null>(null);
 
     register(email: string, username: string, password: string): Observable<AuthResponse> {
