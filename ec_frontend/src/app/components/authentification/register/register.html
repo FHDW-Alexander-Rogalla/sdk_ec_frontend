@@ -1,0 +1,57 @@
+<div class="register-container">
+  <div class="register-card">
+    <h2>Registrierung</h2>
+    
+    @if (errorMessage) {
+      <div class="error-message">
+        <strong>ERRROR:</strong> {{ errorMessage }}
+      </div>
+    }
+
+    <form #registerForm="ngForm" (ngSubmit)="onSubmit(email.value, username.value, password.value)">
+      <div class="form-group">
+        <label for="email">E-Mail</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email"
+          #email
+          required
+          placeholder="name@beispiel.de"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="username">User name</label>
+        <input 
+          type="text" 
+          id="username" 
+          name="username"
+          #username
+          required
+          placeholder="Username"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password"
+          #password
+          required
+          placeholder="••••••••"
+        />
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="isLoading">
+        {{ isLoading ? 'Registrierung läuft...' : 'Registrieren' }}
+      </button>
+    </form>
+
+    <p class="login-link">
+      Already registered? <a href="/login">Go to Login</a>
+    </p>
+  </div>
+</div>
