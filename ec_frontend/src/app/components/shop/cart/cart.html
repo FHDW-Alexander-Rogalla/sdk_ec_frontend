@@ -1,0 +1,39 @@
+<div class="cart-container">
+	<h1>Your Cart</h1>
+
+	<div *ngIf="loading" class="state">Loading cart...</div>
+	<div *ngIf="error" class="state error">{{ error }}</div>
+	<div *ngIf="!loading && cartItems.length === 0" class="state empty">Your cart is empty.</div>
+
+	<div *ngIf="!loading && cartItems.length > 0" class="cart-grid">
+		<div *ngFor="let item of cartItems" class="cart-card">
+			<div class="cart-image">
+				<img [src]="item.product?.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image'" [alt]="item.product?.name" />
+			</div>
+			<div class="cart-info">
+				<h3>{{ item.product?.name }}</h3>
+				<p class="description">{{ item.product?.description || 'No description available' }}</p>
+				<p class="unit-price">Unit: {{ item.product?.price | currency:'EUR' }}</p>
+				<p class="subtotal">Subtotal: {{ getItemTotal(item) | currency:'EUR' }}</p>
+			</div>
+			<div class="cart-actions">
+				<div class="action-row">
+					<div class="quantity-selector">
+						<label for="qty-{{ item.id }}">Quantity:</label>
+						<input id="qty-{{ item.id }}" type="number" min="1" [ngModel]="item.quantity" (ngModelChange)="onLocalQuantityChange(item, $event)" />
+						<button *ngIf="isQuantityDirty(item)" class="change-btn" (click)="applyQuantityChange(item)">Change</button>
+					</div>
+				</div>
+				<button class="delete-btn" (click)="removeItem(item)">Delete all Items</button>
+			</div>
+		</div>
+	</div>
+
+	<div *ngIf="cartItems.length > 0" class="cart-footer">
+		<div class="total">Total: {{ getTotal() | currency:'EUR' }}</div>
+		<div class="footer-actions">
+			<button class="clear-btn" (click)="clearCart()">Clear Cart</button>
+			<button class="order-btn" (click)="submitOrder()">Place Order (placeholder)</button>
+		</div>
+	</div>
+</div>

@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Observable, tap, forkJoin, map, of } from 'rxjs';
+import { Observable, tap, forkJoin, map, of, switchMap } from 'rxjs';
 import { ApiService } from './api.service';
 import { ProductService } from './product.service';
 import { 
@@ -49,26 +49,21 @@ export class CartService {
      */
     getCartItems(): Observable<CartItemWithProduct[]> {
         return this.apiService.get<CartItemDto[]>(`${this.basePath}/items`).pipe(
-            map(items => {
+            switchMap(items => {
                 if (items.length === 0) {
                     this.cartItems.set([]);
-                    return [];
+                    return of([] as CartItemWithProduct[]);
                 }
-                
-                // Fetch product details for each cart item
-                const itemsWithProducts$ = items.map(item => 
+
+                const itemsWithProducts$ = items.map(item =>
                     this.productService.getById(item.productId).pipe(
                         map(product => ({ ...item, product } as CartItemWithProduct))
                     )
                 );
-                
-                // Wait for all product details to be fetched
-                forkJoin(itemsWithProducts$).subscribe(itemsWithProducts => {
-                    this.cartItems.set(itemsWithProducts);
-                });
-                
-                return items as CartItemWithProduct[];
-            })
+
+                return forkJoin(itemsWithProducts$);
+            }),
+            tap(itemsWithProducts => this.cartItems.set(itemsWithProducts))
         );
     }
 

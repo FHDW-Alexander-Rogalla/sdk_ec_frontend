@@ -1,24 +1,26 @@
 import { Component, signal } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { ProductService } from './core/services/product.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { AuthService } from './core/services/auth.service';
 import { CartService } from './core/services/cart.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, CommonModule],
+  imports: [RouterOutlet, RouterLink, CommonModule, CurrencyPipe],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
   protected readonly title = signal('ec_frontend');
   protected dropdownOpen = signal(false);
+  protected cartHover = signal(false);
 
   constructor(
     private productService: ProductService, 
     protected authService: AuthService,
-    protected cartService: CartService
+    protected cartService: CartService,
+    private router: Router
   ) {
     // Product usage of the ProductService
     this.productService.getAll().subscribe(products => {
@@ -87,4 +89,11 @@ export class App {
     this.authService.logout();
     this.closeDropdown();
   }
+
+  openCart() {
+    this.router.navigate(['/cart']);
+  }
+
+  showCartHover() { this.cartHover.set(true); }
+  hideCartHover() { this.cartHover.set(false); }
 }

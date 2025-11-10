@@ -2,10 +2,11 @@ import { Routes } from '@angular/router';
 import { Register } from './components/authentification/register/register';
 import { Login } from './components/authentification/login/login';
 import { ProductList } from './components/shop/product-list/product-list';
+import { Cart } from './components/shop/cart/cart';
 
 export const routes: Routes = [
 	{ path: '', component: ProductList },
-	// { path: 'products', component: ProductList },
+	{ path: 'cart', component: Cart },
 	{ path: 'register', component: Register },
 	{ path: 'login', component: Login },
 ];
