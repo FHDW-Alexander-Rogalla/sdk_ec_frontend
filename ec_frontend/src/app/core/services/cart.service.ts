@@ -1,11 +1,13 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, forkJoin, map, of } from 'rxjs';
 import { ApiService } from './api.service';
+import { ProductService } from './product.service';
 import { 
     CartDto, 
     CartItemDto, 
     AddCartItemRequest, 
-    UpdateCartItemRequest 
+    UpdateCartItemRequest,
+    CartItemWithProduct
 } from '../models/cart.model';
 
 @Injectable({
@@ -15,7 +17,7 @@ export class CartService {
     private readonly basePath = '/cart';
     
     // Reactive state management
-    private cartItems = signal<CartItemDto[]>([]);
+    private cartItems = signal<CartItemWithProduct[]>([]);
     
     // Computed signals
     readonly items = this.cartItems.asReadonly();
@@ -23,8 +25,16 @@ export class CartService {
         this.cartItems().reduce((sum, item) => sum + item.quantity, 0)
     );
     readonly isEmpty = computed(() => this.cartItems().length === 0);
+    readonly totalPrice = computed(() => 
+        this.cartItems().reduce((sum, item) => 
+            sum + (item.product?.price || 0) * item.quantity, 0
+        )
+    );
 
-    constructor(private apiService: ApiService) { }
+    constructor(
+        private apiService: ApiService,
+        private productService: ProductService
+    ) { }
 
     /**
      * GET /api/cart - Gets the current user's cart
@@ -35,11 +45,30 @@ export class CartService {
 
     /**
      * GET /api/cart/items - Gets all items in the current user's cart
-     * Also updates local state
+     * Also fetches product details for each item and updates local state
      */
-    getCartItems(): Observable<CartItemDto[]> {
+    getCartItems(): Observable<CartItemWithProduct[]> {
         return this.apiService.get<CartItemDto[]>(`${this.basePath}/items`).pipe(
-            tap(items => this.cartItems.set(items))
+            map(items => {
+                if (items.length === 0) {
+                    this.cartItems.set([]);
+                    return [];
+                }
+                
+                // Fetch product details for each cart item
+                const itemsWithProducts$ = items.map(item => 
+                    this.productService.getById(item.productId).pipe(
+                        map(product => ({ ...item, product } as CartItemWithProduct))
+                    )
+                );
+                
+                // Wait for all product details to be fetched
+                forkJoin(itemsWithProducts$).subscribe(itemsWithProducts => {
+                    this.cartItems.set(itemsWithProducts);
+                });
+                
+                return items as CartItemWithProduct[];
+            })
         );
     }
 
@@ -53,7 +82,7 @@ export class CartService {
     }
 
     /**
-     * Convenience method to add a single product with quantity 1
+     * Convenience method to add a single product with quantity
      */
     addProduct(productId: number, quantity: number = 1): Observable<CartItemDto> {
         return this.addCartItem({ productId, quantity });
@@ -94,7 +123,7 @@ export class CartService {
     /**
      * Increments the quantity of a cart item by 1
      */
-    incrementQuantity(item: CartItemDto): Observable<CartItemDto> {
+    incrementQuantity(item: CartItemWithProduct): Observable<CartItemDto> {
         return this.updateQuantity(item.id, item.quantity + 1);
     }
 
@@ -102,7 +131,7 @@ export class CartService {
      * Decrements the quantity of a cart item by 1
      * If quantity becomes 0, removes the item
      */
-    decrementQuantity(item: CartItemDto): Observable<CartItemDto | void> {
+    decrementQuantity(item: CartItemWithProduct): Observable<CartItemDto | void> {
         if (item.quantity <= 1) {
             return this.removeItem(item.id);
         }
@@ -126,7 +155,7 @@ export class CartService {
     /**
      * Gets a cart item by product ID
      */
-    getItemByProductId(productId: number): CartItemDto | undefined {
+    getItemByProductId(productId: number): CartItemWithProduct | undefined {
         return this.cartItems().find(item => item.productId === productId);
     }
 
