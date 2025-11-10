@@ -20,9 +20,9 @@ export class App {
     protected authService: AuthService,
     protected cartService: CartService
   ) {
-    // Example usage of the ExampleService
-    this.productService.getAll().subscribe(examples => {
-      console.log('Fetched examples:', examples);
+    // Product usage of the ProductService
+    this.productService.getAll().subscribe(products => {
+      console.log('Fetched products:', products);
     });
   }
 
