@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
-import { ExampleService } from './core/services/example.service';
+import { ProductService } from './core/services/product.service';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './core/services/auth.service';
 import { CartService } from './core/services/cart.service';
@@ -16,12 +16,12 @@ export class App {
   protected dropdownOpen = signal(false);
 
   constructor(
-    private exampleService: ExampleService, 
+    private productService: ProductService, 
     protected authService: AuthService,
     protected cartService: CartService
   ) {
     // Example usage of the ExampleService
-    this.exampleService.getAll().subscribe(examples => {
+    this.productService.getAll().subscribe(examples => {
       console.log('Fetched examples:', examples);
     });
   }
