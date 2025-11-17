@@ -66,6 +66,18 @@ export class ApiService {
     }
 
     /**
+     * Performs a PATCH request
+     * @param path The API endpoint path
+     * @param body The request body
+     * @returns Observable of the response
+     */
+    patch<T>(path: string, body: any): Observable<T> {
+        return from(this.getHeaders()).pipe(
+            switchMap(headers => this.http.patch<T>(`${this.apiUrl}${path}`, body, { headers }))
+        );
+    }
+
+    /**
      * Performs a DELETE request
      * @param path The API endpoint path
      * @returns Observable of the response

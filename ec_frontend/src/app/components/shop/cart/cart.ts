@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../../../core/services/cart.service';
+import { OrderService } from '../../../core/services/order.service';
 import { CartItemWithProduct } from '../../../core/models/cart.model';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-cart',
@@ -14,10 +16,15 @@ export class Cart implements OnInit {
   cartItems: CartItemWithProduct[] = [];
   loading = false;
   error: string | null = null;
+  submittingOrder = false;
   // Track locally edited quantities without immediately persisting
   private editedQuantities: Record<number, number> = {};
 
-  constructor(private cartService: CartService) {}
+  constructor(
+    private cartService: CartService,
+    private orderService: OrderService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadCartItems();
@@ -101,8 +108,38 @@ export class Cart implements OnInit {
   }
 
   submitOrder(): void {
-    // Platzhalter: Cart-Produkte in der Konsole ausgeben
-    console.log('Order submitted:', this.cartItems);
-    alert('Bestellung als Platzhalter ausgeführt. Siehe Konsole.');
+    if (this.cartItems.length === 0) {
+      alert('Your cart is empty!');
+      return;
+    }
+
+    // Confirm order before submitting
+    const confirmMessage = `You are about to place an order for ${this.cartItems.length} item(s) with a total of ${this.getTotal().toFixed(2)} EUR. Continue?`;
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    this.submittingOrder = true;
+    this.error = null;
+
+    this.orderService.checkoutCart().subscribe({
+      next: order => {
+        this.submittingOrder = false;
+        console.log('Order successfully created:', order);
+        alert(`Order #${order.id} successfully placed! Thank you for your purchase.`);
+        
+        // Clear local cart state (already done in service, but ensure UI updates)
+        this.cartItems = [];
+        
+        // Optionally navigate to order confirmation or orders page
+        // this.router.navigate(['/orders', order.id]);
+      },
+      error: err => {
+        this.submittingOrder = false;
+        console.error('Error creating order:', err);
+        this.error = 'Failed to place order. Please try again.';
+        alert('Error placing order. Please try again.');
+      }
+    });
   }
 }

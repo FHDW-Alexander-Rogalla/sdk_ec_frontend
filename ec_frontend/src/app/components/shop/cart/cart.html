@@ -32,8 +32,10 @@
 	<div *ngIf="cartItems.length > 0" class="cart-footer">
 		<div class="total">Total: {{ getTotal() | currency:'EUR' }}</div>
 		<div class="footer-actions">
-			<button class="clear-btn" (click)="clearCart()">Clear Cart</button>
-			<button class="order-btn" (click)="submitOrder()">Place Order (placeholder)</button>
+			<button class="clear-btn" (click)="clearCart()" [disabled]="submittingOrder">Clear Cart</button>
+			<button class="order-btn" (click)="submitOrder()" [disabled]="submittingOrder">
+				{{ submittingOrder ? 'Placing Order...' : 'Place Order' }}
+			</button>
 		</div>
 	</div>
 </div>
