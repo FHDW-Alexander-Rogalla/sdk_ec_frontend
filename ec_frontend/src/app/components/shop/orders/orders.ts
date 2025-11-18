@@ -1,0 +1,97 @@
+import { Component, OnInit, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { OrderService } from '../../../core/services/order.service';
+import { OrderWithProducts } from '../../../core/models/order.model';
+
+@Component({
+  selector: 'app-orders',
+  imports: [CommonModule, RouterLink],
+  templateUrl: './orders.html',
+  styleUrl: './orders.css'
+})
+export class Orders implements OnInit {
+  constructor(public orderService: OrderService) {}
+
+  // Access the reactive state from the service via getters
+  get orders() { return this.orderService.allOrders; }
+  get hasOrders() { return this.orderService.hasOrders; }
+  
+  // Local computed signals
+  readonly pendingOrders = computed(() => 
+    this.orderService.allOrders().filter(order => order.status === 'pending')
+  );
+  
+  readonly completedOrders = computed(() => 
+    this.orderService.allOrders().filter(order => order.status === 'completed')
+  );
+  
+  readonly cancelledOrders = computed(() => 
+    this.orderService.allOrders().filter(order => order.status === 'cancelled')
+  );
+
+  ngOnInit(): void {
+    // Load orders when component initializes
+    this.orderService.refreshOrders();
+  }
+
+  /**
+   * Calculates total for an order
+   */
+  getOrderTotal(order: OrderWithProducts): number {
+    return this.orderService.calculateOrderTotal(order);
+  }
+
+  /**
+   * Formats order date for display
+   */
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('de-DE', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  /**
+   * Gets status badge class
+   */
+  getStatusClass(status: string): string {
+    switch(status.toLowerCase()) {
+      case 'pending': return 'status-pending';
+      case 'confirmed': return 'status-confirmed';
+      case 'payment pending': return 'status-payment-pending';
+      case 'payment received': return 'status-payment-received';
+      case 'delivered': return 'status-delivered';
+      case 'canceled': return 'status-canceled';
+      case 'cancelled': return 'status-canceled'; // Alternative spelling
+      default: return 'status-default';
+    }
+  }
+
+  /**
+   * Gets localized status text
+   */
+  getStatusText(status: string): string {
+    switch(status.toLowerCase()) {
+      case 'pending': return 'Pending';
+      case 'confirmed': return 'Confirmed';
+      case 'payment pending': return 'Payment Pending';
+      case 'payment received': return 'Payment Received';
+      case 'delivered': return 'Delivered';
+      case 'canceled': return 'Canceled';
+      case 'cancelled': return 'Canceled';
+      default: return status;
+    }
+  }
+
+  /**
+   * Tracks orders by their ID for better performance
+   */
+  trackByOrderId(index: number, order: OrderWithProducts): number {
+    return order.id;
+  }
+}

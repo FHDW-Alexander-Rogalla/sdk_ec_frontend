@@ -3,10 +3,12 @@ import { Register } from './components/authentification/register/register';
 import { Login } from './components/authentification/login/login';
 import { ProductList } from './components/shop/product-list/product-list';
 import { Cart } from './components/shop/cart/cart';
+import { Orders } from './components/shop/orders/orders';
 
 export const routes: Routes = [
 	{ path: '', component: ProductList },
 	{ path: 'cart', component: Cart },
+	{ path: 'orders', component: Orders },
 	{ path: 'register', component: Register },
 	{ path: 'login', component: Login },
 ];

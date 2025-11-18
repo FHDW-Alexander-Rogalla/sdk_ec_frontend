@@ -7,4 +7,4 @@ docker compose -f compose.http.yaml up --build
 
 
 # HTTPS start up
-docker compose -f compose.http.yaml up --build
+docker compose -f compose.https.yaml up --build
