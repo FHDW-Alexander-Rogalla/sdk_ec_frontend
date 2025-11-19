@@ -225,9 +225,9 @@
                   }
                 </ul>
                 <div class="cart-total">Total: {{ cartService.totalPrice() | currency:'EUR' }}</div>
-                <div class="cart-actions">
+                <!-- <div class="cart-actions">
                   <button class="to-cart-btn" (click)="openCart()">To Cart</button>
-                </div>
+                </div> -->
               }
             </div>
           }
@@ -270,7 +270,7 @@
                   Product Management
                 </a>
                 <div class="dropdown-divider"></div>
-                <div class="dropdown-section-label">Customer Features</div>
+                <div class="dropdown-section-label">General Features</div>
               }
               <a routerLink="/orders" class="dropdown-item" (click)="closeDropdown()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
