@@ -19,6 +19,10 @@ export class Products implements OnInit {
   editingProductId: number | null = null;
   showInactive = false;
   
+  // Confirmation state
+  confirmingDeactivateId: number | null = null;
+  confirmingActivateId: number | null = null;
+  
   // Form model
   productForm: CreateProductRequest | UpdateProductRequest = {
     name: '',
@@ -168,43 +172,65 @@ export class Products implements OnInit {
   }
 
   /**
+   * Show deactivate confirmation
+   */
+  showDeactivateConfirmation(productId: number): void {
+    this.confirmingDeactivateId = productId;
+  }
+
+  /**
+   * Cancel deactivate confirmation
+   */
+  cancelDeactivate(): void {
+    this.confirmingDeactivateId = null;
+  }
+
+  /**
    * Delete product (soft-delete, sets is_active to false)
    */
   deleteProduct(productId: number): void {
-    const product = this.products().find(p => p.id === productId);
-    if (!confirm(`Are you sure you want to deactivate "${product?.name}"? It will no longer be visible to customers.`)) {
-      return;
-    }
-
     this.adminProductService.deleteProduct(productId).subscribe({
       next: (response) => {
         console.log(response.message);
+        this.confirmingDeactivateId = null;
         this.loadProducts();
       },
       error: (error) => {
         console.error('Failed to deactivate product:', error);
         alert('Failed to deactivate product. Please try again.');
+        this.confirmingDeactivateId = null;
       }
     });
+  }
+
+  /**
+   * Show activate confirmation
+   */
+  showActivateConfirmation(productId: number): void {
+    this.confirmingActivateId = productId;
+  }
+
+  /**
+   * Cancel activate confirmation
+   */
+  cancelActivate(): void {
+    this.confirmingActivateId = null;
   }
 
   /**
    * Activate product (sets is_active to true)
    */
   activateProduct(productId: number): void {
-    const product = this.products().find(p => p.id === productId);
-    if (!confirm(`Are you sure you want to reactivate "${product?.name}"? It will become visible to customers again.`)) {
-      return;
-    }
-
     this.adminProductService.activateProduct(productId).subscribe({
       next: (response) => {
         console.log(response.message);
+        this.confirmingActivateId = null;
         this.loadProducts();
       },
       error: (error) => {
         console.error('Failed to reactivate product:', error);
         alert('Failed to reactivate product. Please try again.');
+        this.confirmingActivateId = null;
       }
     });
   }
