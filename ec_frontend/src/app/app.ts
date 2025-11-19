@@ -15,6 +15,14 @@ export class App {
   protected readonly title = signal('ec_frontend');
   protected dropdownOpen = signal(false);
   protected cartHover = signal(false);
+  
+  // Check if current user is admin (you can enhance this with actual role check)
+  get isAdmin(): boolean {
+    const user = this.authService.currentUser();
+    // For now, check if email is admin@gmail.com
+    // Later you can add a proper role check via API
+    return user?.email === 'admin@gmail.com';
+  }
 
   constructor(
     private productService: ProductService, 

@@ -33,3 +33,21 @@ export interface OrderItemWithProduct extends OrderItemDto {
 export interface OrderWithProducts extends Omit<OrderDto, 'items'> {
     items: OrderItemWithProduct[];
 }
+
+// Admin-specific order DTO with additional user information
+export interface AdminOrderDto {
+    id: number;
+    userId?: string;
+    userEmail?: string;
+    username?: string;
+    orderDate: string;
+    status: string;
+    updatedAt: string;
+    items: OrderItemDto[];
+    totalAmount: number;
+}
+
+// Extended admin order with product details
+export interface AdminOrderWithProducts extends Omit<AdminOrderDto, 'items'> {
+    items: OrderItemWithProduct[];
+}

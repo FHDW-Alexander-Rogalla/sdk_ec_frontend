@@ -236,6 +236,12 @@
   flex-shrink: 0;
 }
 
+.dropdown-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 0;
+}
+
 /* Main content spacing */
 .main {
   margin-top: 70px;
