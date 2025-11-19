@@ -1,5 +1,5 @@
 # sdk_ec_frontend
-Software Development Kit, E-Commerce project, Angular-Frontend
+Software Development Kit, E-Commerce project, Angular 20.3.0-Frontend
 
 ## Prerequisites
 - Docker & Docker Compose
