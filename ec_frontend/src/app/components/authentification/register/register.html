@@ -15,7 +15,8 @@
           type="email" 
           id="email" 
           name="email"
-          #email
+          #email="ngModel"
+          [(ngModel)]="formData.email"
           required
           placeholder="name@example.com"
         />
@@ -27,7 +28,8 @@
           type="text" 
           id="username" 
           name="username"
-          #username
+          #username="ngModel"
+          [(ngModel)]="formData.username"
           required
           placeholder="Username"
         />
@@ -39,13 +41,14 @@
           type="password" 
           id="password" 
           name="password"
-          #password
+          #password="ngModel"
+          [(ngModel)]="formData.password"
           required
           placeholder="••••••••"
         />
       </div>
 
-      <button type="submit" class="submit-btn" [disabled]="isLoading">
+      <button type="submit" class="submit-btn" [disabled]="isLoading || !registerForm.valid">
         {{ isLoading ? 'Registration in progress...' : 'Register' }}
       </button>
     </form>

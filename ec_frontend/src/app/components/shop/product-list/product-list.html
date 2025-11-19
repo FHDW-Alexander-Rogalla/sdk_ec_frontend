@@ -4,9 +4,12 @@
   <!-- Not Authenticated State -->
   <div *ngIf="!isAuthenticated" class="auth-required">
     <div class="auth-message">
-      <h2>Please log in to view products</h2>
-      <p>You need to be logged in to browse our product catalog and add them to your shopping cart.</p>
-      <button class="login-btn" (click)="navigateToLogin()">Go to Login</button>
+      <h2>Account Required</h2>
+      <p>You need an account to view products and shop. Please log in if you already have an account, or create a new one to get started.</p>
+      <div class="auth-buttons">
+        <button class="login-btn" (click)="navigateToLogin()">Log In</button>
+        <button class="register-btn" (click)="navigateToRegister()">Create Account</button>
+      </div>
     </div>
   </div>
 

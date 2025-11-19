@@ -14,6 +14,11 @@ import { CommonModule } from '@angular/common';
 export class Register {
   errorMessage: string = '';
   isLoading: boolean = false;
+  formData = {
+    email: '',
+    username: '',
+    password: ''
+  };
 
   constructor(private authService: AuthService, private router: Router) { }
 

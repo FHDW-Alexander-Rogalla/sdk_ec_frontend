@@ -149,4 +149,8 @@ export class ProductList implements OnInit, OnDestroy {
   navigateToLogin(): void {
     this.router.navigate(['/login']);
   }
+
+  navigateToRegister(): void {
+    this.router.navigate(['/register']);
+  }
 }
