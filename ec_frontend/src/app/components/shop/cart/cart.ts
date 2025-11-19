@@ -125,6 +125,29 @@ export class Cart implements OnInit {
     });
   }
 
+  removeAllInactive(): void {
+    const inactiveItems = [...this.inactiveItems];
+    if (inactiveItems.length === 0) return;
+
+    let remaining = inactiveItems.length;
+    inactiveItems.forEach(item => {
+      this.cartService.removeItem(item.id).subscribe({
+        next: () => {
+          remaining--;
+          if (remaining === 0) {
+            this.loadCartItems();
+          }
+        },
+        error: () => {
+          remaining--;
+          if (remaining === 0) {
+            this.loadCartItems();
+          }
+        }
+      });
+    });
+  }
+
   submitOrder(): void {
     if (this.activeItems.length === 0) {
       this.checkoutError = 'Your cart has no available items to order.';

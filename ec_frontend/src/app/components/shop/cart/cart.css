@@ -67,6 +67,31 @@
 	gap: 0.5rem;
 }
 
+.section-header-with-action {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 0.75rem;
+}
+
+.remove-all-btn {
+	padding: 0.5rem 1rem;
+	background: #ef4444;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+	font-size: 0.875rem;
+}
+
+.remove-all-btn:hover {
+	background: #dc2626;
+	transform: translateY(-1px);
+	box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
 .inactive-section {
 	margin-top: 2rem;
 	padding-top: 2rem;
