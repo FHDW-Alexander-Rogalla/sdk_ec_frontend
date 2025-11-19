@@ -89,6 +89,34 @@ export class Orders implements OnInit {
   }
 
   /**
+   * Checks if an order can be cancelled
+   */
+  canCancelOrder(order: OrderWithProducts): boolean {
+    const status = order.status.toLowerCase();
+    return status !== 'delivered' && status !== 'canceled' && status !== 'cancelled';
+  }
+
+  /**
+   * Cancels an order
+   */
+  cancelOrder(order: OrderWithProducts): void {
+    if (!confirm(`Are you sure you want to cancel order from ${this.formatDate(order.orderDate)}?`)) {
+      return;
+    }
+
+    this.orderService.cancelOrder(order.id).subscribe({
+      next: () => {
+        // Orders will be refreshed automatically via the service
+      },
+      error: (error) => {
+        console.error('Failed to cancel order:', error);
+        const message = error.error?.message || 'Failed to cancel order. Please try again.';
+        alert(message);
+      }
+    });
+  }
+
+  /**
    * Tracks orders by their ID for better performance
    */
   trackByOrderId(index: number, order: OrderWithProducts): number {

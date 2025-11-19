@@ -81,6 +81,15 @@ export class OrderService {
     }
 
     /**
+     * PATCH /api/order/{id}/cancel - Cancels an order (only if not delivered)
+     */
+    cancelOrder(id: number): Observable<OrderDto> {
+        return this.apiService.patch<OrderDto>(`${this.basePath}/${id}/cancel`, {}).pipe(
+            tap(() => this.refreshOrders())
+        );
+    }
+
+    /**
      * PATCH /api/order/{id}/status - Updates the status of an order
      */
     updateOrderStatus(id: number, status: string): Observable<OrderDto> {
