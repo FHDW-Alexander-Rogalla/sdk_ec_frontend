@@ -200,16 +200,6 @@
       </div>
       
       <div class="auth-menu">
-        <!-- Orders Button -->
-        @if (authService.currentUser() !== null) {
-          <button class="orders-button" routerLink="/orders" aria-label="View Orders">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"></path>
-              <path d="M9 2v6h6"></path>
-            </svg>
-          </button>
-        }
-        
         <!-- Cart Button with Hover Preview -->
         <div class="cart-wrapper" (mouseenter)="showCartHover()" (mouseleave)="hideCartHover()">
           <button class="cart-button" (click)="openCart()" aria-label="Open Cart">
@@ -261,6 +251,7 @@
           @if (authService.currentUser() !== null) {
             <div class="dropdown-menu">
               @if (isAdmin) {
+                <div class="dropdown-section-label">Admin Features</div>
                 <a routerLink="/admin/orders" class="dropdown-item" (click)="closeDropdown()">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
@@ -268,7 +259,7 @@
                     <line x1="6" y1="6" x2="6.01" y2="6"></line>
                     <line x1="6" y1="18" x2="6.01" y2="18"></line>
                   </svg>
-                  Admin: Order Management
+                  Order Management
                 </a>
                 <a routerLink="/admin/products" class="dropdown-item" (click)="closeDropdown()">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -276,10 +267,19 @@
                     <circle cx="8.5" cy="8.5" r="1.5"></circle>
                     <polyline points="21 15 16 10 5 21"></polyline>
                   </svg>
-                  Admin: Product Management
+                  Product Management
                 </a>
                 <div class="dropdown-divider"></div>
+                <div class="dropdown-section-label">Customer Features</div>
               }
+              <a routerLink="/orders" class="dropdown-item" (click)="closeDropdown()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"></path>
+                  <path d="M9 2v6h6"></path>
+                </svg>
+                My Orders
+              </a>
+              <div class="dropdown-divider"></div>
               <a routerLink="/" (click)="logout()" class="dropdown-item">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>

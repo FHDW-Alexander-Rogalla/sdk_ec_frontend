@@ -17,17 +17,22 @@ export class Orders implements OnInit {
   get orders() { return this.orderService.allOrders; }
   get hasOrders() { return this.orderService.hasOrders; }
   
+  // History toggle
+  showHistory = false;
+  
   // Local computed signals
-  readonly pendingOrders = computed(() => 
-    this.orderService.allOrders().filter(order => order.status === 'pending')
+  readonly activeOrders = computed(() => 
+    this.orderService.allOrders().filter(order => {
+      const status = order.status.toLowerCase();
+      return status !== 'delivered' && status !== 'canceled' && status !== 'cancelled';
+    })
   );
   
   readonly completedOrders = computed(() => 
-    this.orderService.allOrders().filter(order => order.status === 'completed')
-  );
-  
-  readonly cancelledOrders = computed(() => 
-    this.orderService.allOrders().filter(order => order.status === 'cancelled')
+    this.orderService.allOrders().filter(order => {
+      const status = order.status.toLowerCase();
+      return status === 'delivered' || status === 'canceled' || status === 'cancelled';
+    })
   );
 
   ngOnInit(): void {
@@ -121,5 +126,12 @@ export class Orders implements OnInit {
    */
   trackByOrderId(index: number, order: OrderWithProducts): number {
     return order.id;
+  }
+
+  /**
+   * Toggles history visibility
+   */
+  toggleHistory(): void {
+    this.showHistory = !this.showHistory;
   }
 }

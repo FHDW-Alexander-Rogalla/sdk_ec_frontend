@@ -242,6 +242,16 @@
   margin: 0;
 }
 
+.dropdown-section-label {
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #f7fafc;
+}
+
 /* Main content spacing */
 .main {
   margin-top: 70px;
