@@ -17,7 +17,7 @@ docker compose -f compose.http.yaml up --build
 docker compose -f compose.https.yaml up --build
 ```
 
-## Configuration
+## Configuration (needed for different HTTP/HTTPS-startups of the API. Default expects API to start in HTTP)
 Configure backend URL in `src/environments/environment.ts`:
 - HTTP Backend: `http://localhost:5139/api`
 - HTTPS Backend: `https://localhost:7129/api`
