@@ -51,6 +51,11 @@
   gap: 0.75rem;
 }
 
+.auth-button-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
 /* Orders Button */
 .orders-button {
   position: relative;
@@ -111,7 +116,7 @@
 
 .cart-hover-panel {
   position: absolute;
-  top: calc(100% + 0.6rem);
+  top: calc(100% + 0.25rem);
   right: 0;
   width: 300px;
   background: #ffffff;
@@ -192,7 +197,7 @@
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  top: calc(100% + 0.0rem);
   right: 0;
   background: white;
   border-radius: 8px;

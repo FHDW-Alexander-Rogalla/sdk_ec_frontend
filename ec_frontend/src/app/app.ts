@@ -85,17 +85,19 @@ export class App {
         console.error('Error loading cart items:', error);
       }
     });
-  }  toggleDropdown() {
-    this.dropdownOpen.set(!this.dropdownOpen());
   }
 
-  closeDropdown() {
+  showUserDropdown() {
+    this.dropdownOpen.set(true);
+  }
+
+  hideUserDropdown() {
     this.dropdownOpen.set(false);
   }
 
   logout() {
     this.authService.logout();
-    this.closeDropdown();
+    this.hideUserDropdown();
   }
 
   openCart() {
