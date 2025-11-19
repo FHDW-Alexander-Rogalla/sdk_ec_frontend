@@ -1,10 +1,10 @@
 <div class="register-container">
   <div class="register-card">
-    <h2>Registrierung</h2>
+    <h2>Registration</h2>
     
     @if (errorMessage) {
       <div class="error-message">
-        <strong>ERRROR:</strong> {{ errorMessage }}
+        <strong>ERROR:</strong> {{ errorMessage }}
       </div>
     }
 
@@ -17,7 +17,7 @@
           name="email"
           #email
           required
-          placeholder="name@beispiel.de"
+          placeholder="name@example.com"
         />
       </div>
 
@@ -46,7 +46,7 @@
       </div>
 
       <button type="submit" class="submit-btn" [disabled]="isLoading">
-        {{ isLoading ? 'Registrierung läuft...' : 'Registrieren' }}
+        {{ isLoading ? 'Registration in progress...' : 'Register' }}
       </button>
     </form>
 
