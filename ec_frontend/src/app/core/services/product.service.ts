@@ -9,6 +9,7 @@ export interface ProductDto {
     description: string | null;
     price: number;
     imageUrl: string | null;
+    isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -33,5 +34,13 @@ export class ProductService {
      */
     getById(id: number): Observable<ProductDto> {
         return this.apiService.get<ProductDto>(`${this.basePath}/${id}`);
+    }
+
+    /**
+     * Get product by ID (including inactive products) - for authenticated users
+     * Used in cart and orders where users need to see products they already have
+     */
+    getByIdAny(id: number): Observable<ProductDto> {
+        return this.apiService.get<ProductDto>(`${this.basePath}/${id}/any`);
     }
 }

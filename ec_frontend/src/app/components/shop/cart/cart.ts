@@ -17,8 +17,22 @@ export class Cart implements OnInit {
   loading = false;
   error: string | null = null;
   submittingOrder = false;
+  checkoutError: string | null = null;
+  showInactive = false;
   // Track locally edited quantities without immediately persisting
   private editedQuantities: Record<number, number> = {};
+
+  get activeItems(): CartItemWithProduct[] {
+    return this.cartItems.filter(item => item.product?.isActive !== false);
+  }
+
+  get inactiveItems(): CartItemWithProduct[] {
+    return this.cartItems.filter(item => item.product?.isActive === false);
+  }
+
+  get hasInactiveItems(): boolean {
+    return this.inactiveItems.length > 0;
+  }
 
   constructor(
     private cartService: CartService,
@@ -39,14 +53,18 @@ export class Cart implements OnInit {
         this.loading = false;
       },
       error: err => {
-        this.error = 'Fehler beim Laden des Warenkorbs.';
+        this.error = 'Error while trying to load the cart.';
         this.loading = false;
       }
     });
   }
 
   getTotal(): number {
-    return this.cartItems.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0);
+    return this.activeItems.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0);
+  }
+
+  toggleInactiveSection(): void {
+    this.showInactive = !this.showInactive;
   }
 
   getItemTotal(item: CartItemWithProduct): number {
@@ -108,37 +126,55 @@ export class Cart implements OnInit {
   }
 
   submitOrder(): void {
-    if (this.cartItems.length === 0) {
-      alert('Your cart is empty!');
+    if (this.activeItems.length === 0) {
+      this.checkoutError = 'Your cart has no available items to order.';
+      return;
+    }
+
+    if (this.hasInactiveItems) {
+      this.checkoutError = 'Please remove unavailable items before placing your order.';
       return;
     }
 
     // Confirm order before submitting
-    const confirmMessage = `You are about to place an order for ${this.cartItems.length} item(s) with a total of ${this.getTotal().toFixed(2)} EUR. Continue?`;
+    const confirmMessage = `You are about to place an order for ${this.activeItems.length} item(s) with a total of ${this.getTotal().toFixed(2)} EUR. Continue?`;
     if (!confirm(confirmMessage)) {
       return;
     }
 
     this.submittingOrder = true;
-    this.error = null;
+    this.checkoutError = null;
 
     this.orderService.checkoutCart().subscribe({
       next: order => {
         this.submittingOrder = false;
         console.log('Order successfully created:', order);
-        alert(`Order #${order.id} successfully placed! Thank you for your purchase.`);
         
-        // Clear local cart state (already done in service, but ensure UI updates)
-        this.cartItems = [];
+        // Show success message
+        this.checkoutError = null;
+        this.error = null;
         
-        // Optionally navigate to order confirmation or orders page
-        // this.router.navigate(['/orders', order.id]);
+        // Clear local cart state and reload
+        this.loadCartItems();
+        
+        // Navigate to orders page
+        this.router.navigate(['/orders']);
       },
       error: err => {
         this.submittingOrder = false;
         console.error('Error creating order:', err);
-        this.error = 'Failed to place order. Please try again.';
-        alert('Error placing order. Please try again.');
+        
+        // Parse backend error message
+        if (err.error?.message) {
+          this.checkoutError = err.error.message;
+          
+          // If inactive products detected, reload cart to update status
+          if (err.error.inactiveProductIds) {
+            this.loadCartItems();
+          }
+        } else {
+          this.checkoutError = 'Failed to place order. Please try again.';
+        }
       }
     });
   }

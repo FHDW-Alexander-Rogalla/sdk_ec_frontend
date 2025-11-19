@@ -26,6 +26,7 @@ export interface OrderItemWithProduct extends OrderItemDto {
         name: string;
         description?: string;
         imageUrl?: string;
+        isActive?: boolean;
     };
 }
 

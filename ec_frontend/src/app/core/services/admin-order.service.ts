@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Observable, tap, map, switchMap, forkJoin, of } from 'rxjs';
+import { Observable, tap, map, switchMap, forkJoin, of, catchError } from 'rxjs';
 import { ApiService } from './api.service';
 import { ProductService } from './product.service';
 import { 
@@ -71,6 +71,7 @@ export class AdminOrderService {
 
     /**
      * Enriches an order with product details for each order item
+     * Uses getByIdAny to include inactive products so admins can see complete order history
      */
     private enrichOrderWithProducts(order: AdminOrderDto): Observable<AdminOrderWithProducts> {
         if (order.items.length === 0) {
@@ -78,16 +79,31 @@ export class AdminOrderService {
         }
 
         const itemsWithProducts$ = order.items.map(item =>
-            this.productService.getById(item.productId).pipe(
+            this.productService.getByIdAny(item.productId).pipe(
                 map(product => ({
                     ...item,
                     product: {
                         id: product.id,
                         name: product.name,
                         description: product.description,
-                        imageUrl: product.imageUrl
+                        imageUrl: product.imageUrl,
+                        isActive: product.isActive
                     }
-                } as OrderItemWithProduct))
+                } as OrderItemWithProduct)),
+                catchError(error => {
+                    // If product is completely deleted, create a placeholder
+                    console.warn(`Product ${item.productId} not found for admin order item:`, error);
+                    return of({
+                        ...item,
+                        product: {
+                            id: item.productId,
+                            name: 'Product Unavailable',
+                            description: 'This product has been removed from the catalog',
+                            imageUrl: undefined,
+                            isActive: false
+                        }
+                    } as OrderItemWithProduct);
+                })
             )
         );
 

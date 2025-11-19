@@ -62,7 +62,7 @@ export class App {
   }
 
   loadCart() {
-    console.log('Loading cart...');
+    // console.log('Loading cart...');
     
     // Get cart info
     this.cartService.getCart().subscribe({

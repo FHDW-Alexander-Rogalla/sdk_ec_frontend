@@ -35,6 +35,15 @@ export class AdminProductService {
     constructor(private apiService: ApiService) { }
 
     /**
+     * GET /api/admin/product - Gets all products including inactive ones (Admin only)
+     */
+    getAllProducts(): Observable<ProductDto[]> {
+        return this.apiService.get<ProductDto[]>(this.basePath).pipe(
+            tap(products => this.products.set(products))
+        );
+    }
+
+    /**
      * POST /api/admin/product - Creates a new product (Admin only)
      */
     createProduct(request: CreateProductRequest): Observable<ProductDto> {
@@ -53,24 +62,28 @@ export class AdminProductService {
     }
 
     /**
-     * DELETE /api/admin/product/{id} - Deletes a product (Admin only)
-     * Note: Currently disabled due to referential integrity considerations
+     * DELETE /api/admin/product/{id} - Soft-deletes a product by setting is_active to false (Admin only)
      */
-    deleteProduct(id: number): Observable<void> {
-        return this.apiService.delete<void>(`${this.basePath}/${id}`).pipe(
+    deleteProduct(id: number): Observable<{ message: string; productId: number }> {
+        return this.apiService.delete<{ message: string; productId: number }>(`${this.basePath}/${id}`).pipe(
             tap(() => this.refreshProducts())
         );
     }
 
     /**
-     * Refreshes the products from the public endpoint
-     * (Uses ProductService internally to avoid duplication)
+     * PATCH /api/admin/product/{id}/activate - Reactivates a product by setting is_active to true (Admin only)
+     */
+    activateProduct(id: number): Observable<{ message: string; productId: number }> {
+        return this.apiService.patch<{ message: string; productId: number }>(`${this.basePath}/${id}/activate`, {}).pipe(
+            tap(() => this.refreshProducts())
+        );
+    }
+
+    /**
+     * Refreshes the products from the admin endpoint
      */
     refreshProducts(): void {
-        // We'll use the public product endpoint since GET methods were removed
-        this.apiService.get<ProductDto[]>('/product').pipe(
-            tap(products => this.products.set(products))
-        ).subscribe();
+        this.getAllProducts().subscribe();
     }
 
     /**

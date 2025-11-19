@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Observable, tap, forkJoin, map, of, switchMap } from 'rxjs';
+import { Observable, tap, forkJoin, map, of, switchMap, catchError } from 'rxjs';
 import { ApiService } from './api.service';
 import { ProductService } from './product.service';
 import { 
@@ -22,7 +22,9 @@ export class CartService {
     // Computed signals
     readonly items = this.cartItems.asReadonly();
     readonly itemCount = computed(() => 
-        this.cartItems().reduce((sum, item) => sum + item.quantity, 0)
+        this.cartItems()
+            .filter(item => item.product?.isActive !== false)
+            .reduce((sum, item) => sum + item.quantity, 0)
     );
     readonly isEmpty = computed(() => this.cartItems().length === 0);
     readonly totalPrice = computed(() => 
@@ -46,6 +48,7 @@ export class CartService {
     /**
      * GET /api/cart/items - Gets all items in the current user's cart
      * Also fetches product details for each item and updates local state
+     * Uses getByIdAny to include inactive products so users can see what's in their cart
      */
     getCartItems(): Observable<CartItemWithProduct[]> {
         return this.apiService.get<CartItemDto[]>(`${this.basePath}/items`).pipe(
@@ -56,8 +59,25 @@ export class CartService {
                 }
 
                 const itemsWithProducts$ = items.map(item =>
-                    this.productService.getById(item.productId).pipe(
-                        map(product => ({ ...item, product } as CartItemWithProduct))
+                    this.productService.getByIdAny(item.productId).pipe(
+                        map(product => ({ ...item, product } as CartItemWithProduct)),
+                        catchError(error => {
+                            // If product is completely deleted from database, create a placeholder
+                            console.warn(`Product ${item.productId} not found in database:`, error);
+                            return of({
+                                ...item,
+                                product: {
+                                    id: item.productId,
+                                    name: 'Product Unavailable',
+                                    description: 'This product has been removed from the catalog',
+                                    price: 0,
+                                    imageUrl: null,
+                                    isActive: false,
+                                    createdAt: new Date(),
+                                    updatedAt: new Date()
+                                }
+                            } as CartItemWithProduct);
+                        })
                     )
                 );
 

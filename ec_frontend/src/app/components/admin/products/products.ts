@@ -11,12 +11,13 @@ import { ProductService, ProductDto } from '../../../core/services/product.servi
   styleUrl: './products.css'
 })
 export class Products implements OnInit {
-  // Access products from public ProductService
+  // Access products from admin service
   products = signal<ProductDto[]>([]);
   
   // Form state
   isEditing = false;
   editingProductId: number | null = null;
+  showInactive = false;
   
   // Form model
   productForm: CreateProductRequest | UpdateProductRequest = {
@@ -29,6 +30,18 @@ export class Products implements OnInit {
   // Validation state
   formErrors: { [key: string]: string } = {};
 
+  get activeProducts(): ProductDto[] {
+    return this.products().filter(p => p.isActive !== false);
+  }
+
+  get inactiveProducts(): ProductDto[] {
+    return this.products().filter(p => p.isActive === false);
+  }
+
+  get hasInactiveProducts(): boolean {
+    return this.inactiveProducts.length > 0;
+  }
+
   constructor(
     private adminProductService: AdminProductService,
     private productService: ProductService
@@ -39,10 +52,10 @@ export class Products implements OnInit {
   }
 
   /**
-   * Load all products
+   * Load all products (including inactive)
    */
   loadProducts(): void {
-    this.productService.getAll().subscribe({
+    this.adminProductService.getAllProducts().subscribe({
       next: (products) => {
         this.products.set(products);
       },
@@ -51,6 +64,10 @@ export class Products implements OnInit {
         alert('Failed to load products. Please try again.');
       }
     });
+  }
+
+  toggleInactiveSection(): void {
+    this.showInactive = !this.showInactive;
   }
 
   /**
@@ -151,20 +168,43 @@ export class Products implements OnInit {
   }
 
   /**
-   * Delete product (currently disabled)
+   * Delete product (soft-delete, sets is_active to false)
    */
   deleteProduct(productId: number): void {
-    if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+    const product = this.products().find(p => p.id === productId);
+    if (!confirm(`Are you sure you want to deactivate "${product?.name}"? It will no longer be visible to customers.`)) {
       return;
     }
 
     this.adminProductService.deleteProduct(productId).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log(response.message);
         this.loadProducts();
       },
       error: (error) => {
-        console.error('Failed to delete product:', error);
-        alert('Failed to delete product. Please try again.');
+        console.error('Failed to deactivate product:', error);
+        alert('Failed to deactivate product. Please try again.');
+      }
+    });
+  }
+
+  /**
+   * Activate product (sets is_active to true)
+   */
+  activateProduct(productId: number): void {
+    const product = this.products().find(p => p.id === productId);
+    if (!confirm(`Are you sure you want to reactivate "${product?.name}"? It will become visible to customers again.`)) {
+      return;
+    }
+
+    this.adminProductService.activateProduct(productId).subscribe({
+      next: (response) => {
+        console.log(response.message);
+        this.loadProducts();
+      },
+      error: (error) => {
+        console.error('Failed to reactivate product:', error);
+        alert('Failed to reactivate product. Please try again.');
       }
     });
   }

@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Observable, tap, forkJoin, map, of, switchMap } from 'rxjs';
+import { Observable, tap, forkJoin, map, of, switchMap, catchError } from 'rxjs';
 import { ApiService } from './api.service';
 import { ProductService } from './product.service';
 import { CartService } from './cart.service';
@@ -101,6 +101,7 @@ export class OrderService {
 
     /**
      * Enriches an order with product details for each order item
+     * Uses getByIdAny to include inactive products so users can see their order history
      */
     private enrichOrderWithProducts(order: OrderDto): Observable<OrderWithProducts> {
         if (order.items.length === 0) {
@@ -108,16 +109,31 @@ export class OrderService {
         }
 
         const itemsWithProducts$ = order.items.map(item =>
-            this.productService.getById(item.productId).pipe(
+            this.productService.getByIdAny(item.productId).pipe(
                 map(product => ({
                     ...item,
                     product: {
                         id: product.id,
                         name: product.name,
                         description: product.description,
-                        imageUrl: product.imageUrl
+                        imageUrl: product.imageUrl,
+                        isActive: product.isActive
                     }
-                } as OrderItemWithProduct))
+                } as OrderItemWithProduct)),
+                catchError(error => {
+                    // If product is completely deleted, create a placeholder
+                    console.warn(`Product ${item.productId} not found for order item:`, error);
+                    return of({
+                        ...item,
+                        product: {
+                            id: item.productId,
+                            name: 'Product Unavailable',
+                            description: 'This product has been removed from the catalog',
+                            imageUrl: undefined,
+                            isActive: false
+                        }
+                    } as OrderItemWithProduct);
+                })
             )
         );
 
