@@ -1,22 +1,23 @@
 # sdk_ec_frontend
 Software Development Kit, E-Commerce project, Angular-Frontend
 
+## Prerequisites
+- Docker & Docker Compose
+- Backend API must be running (see `sdk_ec_backend_api`)
 
-# HTTP start up
+## Startup
+
+### HTTP Mode (Development)
+```open a new terminal
 docker compose -f compose.http.yaml up --build
+```
 
-
-# HTTPS start up
+### HTTPS Mode (Production-like)
+```open a new terminal
 docker compose -f compose.https.yaml up --build
+```
 
-
-Accounts for example usage:
-
-Customer:
-Email: foo@gmail.com
-password: foofoofoo
-
-
-Admin: 
-Email: admin@gmail.com
-password: adminadmin
+## Configuration
+Configure backend URL in `src/environments/environment.ts`:
+- HTTP Backend: `http://localhost:5139/api`
+- HTTPS Backend: `https://localhost:7129/api`
