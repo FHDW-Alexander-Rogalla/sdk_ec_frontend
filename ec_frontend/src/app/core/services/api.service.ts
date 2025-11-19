@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, switchMap } from 'rxjs';
+import { Observable, from, switchMap, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { SupabaseService } from './supabase.service';
 
@@ -37,7 +37,8 @@ export class ApiService {
      */
     get<T>(path: string, params: HttpParams = new HttpParams()): Observable<T> {
         return from(this.getHeaders()).pipe(
-            switchMap(headers => this.http.get<T>(`${this.apiUrl}${path}`, { headers, params }))
+            switchMap(headers => this.http.get<T>(`${this.apiUrl}${path}`, { headers, params })),
+            map(response => this.convertTimestampsToRigaTime(response))
         );
     }
 
@@ -49,7 +50,8 @@ export class ApiService {
      */
     post<T>(path: string, body: any): Observable<T> {
         return from(this.getHeaders()).pipe(
-            switchMap(headers => this.http.post<T>(`${this.apiUrl}${path}`, body, { headers }))
+            switchMap(headers => this.http.post<T>(`${this.apiUrl}${path}`, body, { headers })),
+            map(response => this.convertTimestampsToRigaTime(response))
         );
     }
 
@@ -61,7 +63,8 @@ export class ApiService {
      */
     put<T>(path: string, body: any): Observable<T> {
         return from(this.getHeaders()).pipe(
-            switchMap(headers => this.http.put<T>(`${this.apiUrl}${path}`, body, { headers }))
+            switchMap(headers => this.http.put<T>(`${this.apiUrl}${path}`, body, { headers })),
+            map(response => this.convertTimestampsToRigaTime(response))
         );
     }
 
@@ -73,7 +76,8 @@ export class ApiService {
      */
     patch<T>(path: string, body: any): Observable<T> {
         return from(this.getHeaders()).pipe(
-            switchMap(headers => this.http.patch<T>(`${this.apiUrl}${path}`, body, { headers }))
+            switchMap(headers => this.http.patch<T>(`${this.apiUrl}${path}`, body, { headers })),
+            map(response => this.convertTimestampsToRigaTime(response))
         );
     }
 
@@ -84,7 +88,53 @@ export class ApiService {
      */
     delete<T>(path: string): Observable<T> {
         return from(this.getHeaders()).pipe(
-            switchMap(headers => this.http.delete<T>(`${this.apiUrl}${path}`, { headers }))
+            switchMap(headers => this.http.delete<T>(`${this.apiUrl}${path}`, { headers })),
+            map(response => this.convertTimestampsToRigaTime(response))
         );
+    }
+
+    /**
+     * Recursively converts UTC timestamps to Riga timezone (UTC+2)
+     * Detects common timestamp field names and converts them
+     */
+    private convertTimestampsToRigaTime<T>(data: T): T {
+        if (!data) return data;
+
+        // Handle arrays
+        if (Array.isArray(data)) {
+            return data.map(item => this.convertTimestampsToRigaTime(item)) as any;
+        }
+
+        // Handle objects
+        if (typeof data === 'object') {
+            const converted: any = {};
+            for (const [key, value] of Object.entries(data)) {
+                // Check if field name suggests it's a timestamp
+                const isTimestampField = /date|time|at$/i.test(key);
+                
+                if (isTimestampField && typeof value === 'string' && this.isISODateString(value)) {
+                    // Convert UTC to Riga time (+2 hours)
+                    const utcDate = new Date(value);
+                    const rigaDate = new Date(utcDate.getTime() + (2 * 60 * 60 * 1000));
+                    converted[key] = rigaDate.toISOString();
+                } else if (typeof value === 'object') {
+                    // Recursively convert nested objects
+                    converted[key] = this.convertTimestampsToRigaTime(value);
+                } else {
+                    converted[key] = value;
+                }
+            }
+            return converted as T;
+        }
+
+        return data;
+    }
+
+    /**
+     * Check if a string is a valid ISO date string
+     */
+    private isISODateString(value: string): boolean {
+        const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/;
+        return isoDateRegex.test(value) && !isNaN(Date.parse(value));
     }
 }
