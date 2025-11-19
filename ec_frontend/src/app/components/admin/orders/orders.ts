@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminOrderService } from '../../../core/services/admin-order.service';
@@ -22,6 +22,59 @@ export class Orders implements OnInit {
   // Track which order is being edited
   editingOrderId: number | null = null;
   selectedStatus: string = '';
+
+  // Filter and sort controls
+  filterStatus = signal<string>('all');
+  filterSearch = signal<string>('');
+  sortBy = signal<'date' | 'total' | 'status'>('date');
+  sortDesc = signal<boolean>(true);
+
+  // Expanded order items
+  expandedOrderId = signal<number | null>(null);
+
+  // Computed filtered and sorted orders
+  readonly filteredOrders = computed(() => {
+    let filtered = this.orders();
+
+    // Filter by status
+    if (this.filterStatus() !== 'all') {
+      filtered = filtered.filter(order => 
+        order.status.toLowerCase() === this.filterStatus().toLowerCase()
+      );
+    }
+
+    // Filter by search (customer name, email, or order ID)
+    const searchTerm = this.filterSearch().toLowerCase();
+    if (searchTerm) {
+      filtered = filtered.filter(order => 
+        order.id.toString().includes(searchTerm) ||
+        order.username?.toLowerCase().includes(searchTerm) ||
+        order.userEmail?.toLowerCase().includes(searchTerm) ||
+        order.userId?.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    // Sort orders
+    const sorted = [...filtered].sort((a, b) => {
+      let comparison = 0;
+      
+      switch(this.sortBy()) {
+        case 'date':
+          comparison = new Date(a.orderDate).getTime() - new Date(b.orderDate).getTime();
+          break;
+        case 'total':
+          comparison = a.totalAmount - b.totalAmount;
+          break;
+        case 'status':
+          comparison = a.status.localeCompare(b.status);
+          break;
+      }
+
+      return this.sortDesc() ? -comparison : comparison;
+    });
+
+    return sorted;
+  });
 
   ngOnInit(): void {
     // Load all orders when component initializes
@@ -116,5 +169,27 @@ export class Orders implements OnInit {
     if (order.userEmail) return order.userEmail;
     if (order.userId) return `User ${order.userId.substring(0, 8)}...`;
     return 'Unknown User';
+  }
+
+  /**
+   * Toggle expanded order items
+   */
+  toggleExpand(orderId: number): void {
+    this.expandedOrderId.set(this.expandedOrderId() === orderId ? null : orderId);
+  }
+
+  /**
+   * Check if order is expanded
+   */
+  isExpanded(orderId: number): boolean {
+    return this.expandedOrderId() === orderId;
+  }
+
+  /**
+   * Get unique statuses from orders for filter dropdown
+   */
+  get availableStatuses(): string[] {
+    const statuses = new Set(this.orders().map(o => o.status));
+    return Array.from(statuses).sort();
   }
 }
