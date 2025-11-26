@@ -12,6 +12,7 @@ Software Development Kit, E-Commerce project, Angular 20.3.0-Frontend
 - Backend API must be running (see `sdk_ec_backend_api`)
 
 ## Startup
+```Docker must be open to start the containerts
 
 ### HTTP Mode (Development)
 ```open a new terminal
