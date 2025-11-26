@@ -1,6 +1,12 @@
 # sdk_ec_frontend
 Software Development Kit, E-Commerce project, Angular 20.3.0-Frontend
 
+## System Requirements
+- **Node.js**: v20.x or higher ([Download](https://nodejs.org/))
+- **npm**: v10.x or higher (included with Node.js)
+- **Docker**: Latest version ([Download](https://www.docker.com/products/docker-desktop/))
+- **Docker Compose**: Included with Docker Desktop
+
 ## Prerequisites
 - Docker & Docker Compose
 - Backend API must be running (see `sdk_ec_backend_api`)
